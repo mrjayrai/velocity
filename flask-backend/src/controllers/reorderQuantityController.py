@@ -1,130 +1,41 @@
-import pandas as pd
-from transformers import pipeline
-import nltk
-import warnings
-import numpy as np
+import math
 
-# Set NLTK data path and check for required tokenizer
-nltk.data.path.append("/home/ubuntu/nltk_data")
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
+def calculate_order_interval(product_name, quantity_available, average_daily_usage):
+    """
+    Calculate the interval (in days) at which an order should be placed for a given product.
 
-warnings.filterwarnings("ignore")
+    Args:
+        product_name (str): Name of the product.
+        quantity_available (int): Number of items available.
+        average_daily_usage (int): Average daily usage of the product.
 
-# Initialize summarization pipeline once
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
-def handle_attendance_json(consultant_data):
+    Returns:
+        dict: A dictionary containing the product name, quantity available, average daily usage,
+              and the order interval in days.
+    """
     try:
-        if not isinstance(consultant_data, list):
+        # Validate inputs
+        if not isinstance(product_name, str) or not isinstance(quantity_available, int) or not isinstance(average_daily_usage, int):
             return {
-                "error": "Expected a list of consultant objects.",
+                "error": "Invalid input types. Ensure product_name is a string, quantity_available and average_daily_usage are integers.",
                 "status": "failure"
             }
 
-        attendance_rows = []
-        enriched_insights = []
+        if quantity_available <= 0 or average_daily_usage <= 0:
+            return {
+                "error": "Quantity available and average daily usage must be greater than zero.",
+                "status": "failure"
+            }
 
-        for user in consultant_data:
-            user_id = user.get("userId", "UnknownUser")
-            name = user.get("name", "N/A")
-            email = user.get("email", "N/A")
-            city = user.get("city", "N/A")
-            doj = user.get("doj", "N/A")
-
-            resume_skills = set(map(str.lower, user.get("resumeDetails", {}).get("skills", [])))
-            skills_obj = user.get("skills", [])
-            attendance_sheet = user.get("attendanceSheet", [])
-            trainings_completed = user.get("trainingsCompleted", [])
-            assigned_trainings = user.get("trainingsAssigned", [])
-            projects = user.get("projects", [])
-
-            endorsed_skills = [s for s in skills_obj if s.get("endorsements", 0) > 0]
-            certified_skills = [s for s in skills_obj if s.get("certification", "").lower() == "true"]
-            skill_names = set(s.get("name", "").lower() for s in skills_obj)
-            skill_match_pct = round(len(resume_skills & skill_names) / max(1, len(resume_skills)) * 100, 2)
-
-            total_days = total_present = 0
-            training_attendance_list = []
-
-            for entry in attendance_sheet:
-                training = entry.get("trainingAttended", "Unknown")
-                total = entry.get("totalDaysInWeek", 0)
-                present = len(entry.get("daysPresent", []))
-
-                total_days += total
-                total_present += present
-
-                attendance_rows.append({
-                    "User ID": user_id,
-                    "Training": training,
-                    "Total Days": total,
-                    "Days Present": present,
-                    "Attendance %": round((present / total) * 100, 2) if total else 0.0
-                })
-
-                training_attendance_list.append({
-                    "Training": training,
-                    "Days Present": present,
-                    "Total Days": total,
-                    "Attendance %": round((present / total) * 100, 2) if total else 0.0
-                })
-
-            overall_attendance = round((total_present / total_days) * 100, 2) if total_days else 0.0
-
-            if overall_attendance >= 90 and len(certified_skills) >= 2 and len(projects) >= 2:
-                status = "Deployment Ready"
-            elif overall_attendance >= 75:
-                status = "Needs Further Evaluation"
-            else:
-                status = "Training Needed"
-
-            enriched_insights.append({
-                "userId": user_id,
-                "name": name,
-                "email": email,
-                "city": city,
-                "dateOfJoining": doj,
-                "totalTrainings": len(training_attendance_list),
-                "totalDays": total_days,
-                "daysPresent": total_present,
-                "overallAttendance": overall_attendance,
-                "resumeSkillMatchPercent": skill_match_pct,
-                "certifiedSkills": len(certified_skills),
-                "endorsedSkills": len(endorsed_skills),
-                "projectCount": len(projects),
-                "remark": status,
-                "trainings": training_attendance_list
-            })
-
-        df = pd.DataFrame(attendance_rows)
-
-        summary_text = ""
-        for insight in enriched_insights:
-            summary_text += (
-                f"{insight['name']} ({insight['userId']}) from {insight['city']} "
-                f"attended {insight['daysPresent']}/{insight['totalDays']} days "
-                f"with overall attendance {insight['overallAttendance']}%, "
-                f"skill match {insight['resumeSkillMatchPercent']}%, "
-                f"{insight['certifiedSkills']} certified skills, {insight['projectCount']} project(s). "
-                f"Remark: {insight['remark']}.\n"
-            )
-
-        avg_attendance = round(df["Attendance %"].mean(), 2) if not df.empty else 0.0
-        summary_text += f"\nOverall average attendance across all consultants: {avg_attendance}%."
-
-        # Use HuggingFace summarizer (no fallback)
-        try:
-            ai_summary = summarizer(summary_text[:1024], max_length=100, min_length=30, do_sample=False)[0]['summary_text']
-        except Exception as e:
-            ai_summary = "Summary generation failed: " + str(e)
+        # Calculate the order interval
+        order_interval = math.ceil(quantity_available / average_daily_usage)
 
         return {
             "status": "success",
-            "summary": ai_summary,
-            "insights": enriched_insights
+            "product_name": product_name,
+            "quantity_available": quantity_available,
+            "average_daily_usage": average_daily_usage,
+            "order_interval_days": order_interval
         }
 
     except Exception as e:
@@ -132,3 +43,7 @@ def handle_attendance_json(consultant_data):
             "status": "failure",
             "error": str(e)
         }
+
+# Example usage
+result = calculate_order_interval("USB Cable", 286, 18)
+print(result)
