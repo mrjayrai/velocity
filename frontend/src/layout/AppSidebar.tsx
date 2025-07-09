@@ -33,11 +33,11 @@ const navItems: NavItem[] = [
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
     path:"/"
   },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
-  // },
+  {
+    icon: <TableIcon />,
+    name: "Add Stock",
+    path: "/order",
+  },
 ];
 
 const othersItems: NavItem[] = [
