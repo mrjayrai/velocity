@@ -1,13 +1,24 @@
 from flask import Blueprint, request, jsonify
-# from controllers.attendance_controller import handle_attendance_json
-
-bp = Blueprint('re-order-data', __name__, url_prefix='/api/inventory/reorder')
-
+from controllers.reorderQuantityController import calculate_order_interval
+ 
+bp = Blueprint('reorder_bp', __name__, url_prefix='/api/inventory/reorder')
+ 
 @bp.route('/analyze', methods=['POST'])
-def reorder_days():
-    # print("hello")
-    data = request.get_json()
-    result = reorder_days(data)
-    print(result)
-    # print(data)
-    return jsonify(result)
+def analyze_reorder():
+    try:
+        data = request.get_json()
+ 
+        # ✅ Fix: Extract list from "data" key if present
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
+ 
+        if not isinstance(data, list):
+            return jsonify({"error": "Expected a list or object in JSON body"}), 400
+ 
+        result = calculate_order_interval(data)
+        # print(result)
+        return jsonify(result), 200
+ 
+    except Exception as e:
+        print(f"❌ Unexpected server error: {e}")
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
