@@ -1,0 +1,40 @@
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from joblib import dump, load
+
+# Step 1: Sample dataset
+data = {
+    "item_name": ["Paper", "Pens", "Coffee Pods", "Notebooks", "Markers"],
+    "quantity_available": [200, 100, 50, 120, 80],
+    "average_daily_use": [20, 10, 5, 12, 8],
+    "days_left": [10, 10, 10, 10, 10]  # derived as quantity / average_daily_use
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Define features and target
+X = df[["quantity_available", "average_daily_use"]]
+y = df["days_left"]
+
+# Step 3: Train model
+model = LinearRegression()
+model.fit(X, y)
+
+# Step 4: Save model
+dump(model, "reorder_model.joblib")
+print("✅ Model trained and saved as reorder_model.joblib")
+
+# Step 5: Sample prediction
+def predict_days_left(quantity_available: int, average_daily_use: float):
+    loaded_model = load("reorder_model.joblib")
+    prediction = loaded_model.predict([[quantity_available, average_daily_use]])
+    return prediction[0]
+
+# Step 6: Try with a sample input
+if __name__ == "__main__":
+    print("\n📦 Reorder Prediction Tool")
+    quantity = int(input("Enter quantity available: "))
+    daily_use = float(input("Enter average daily usage: "))
+
+    days = predict_days_left(quantity, daily_use)
+    print(f"\n⏳ Predicted days before reorder: {days:.2f} days")
