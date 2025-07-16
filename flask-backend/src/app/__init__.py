@@ -2,6 +2,7 @@ from flask import Flask
 
 # from routes import resume_agent_routes, attendance_agent_routes,opportunity_agent_routes,training_agent_routes
 from routes import reorderDays
+from routes import reorderQuantity
 
 def create_app():  
     app = Flask(__name__)
@@ -12,5 +13,6 @@ def create_app():
     # app.register_blueprint(opportunity_agent_routes.bp)
     # app.register_blueprint(training_agent_routes.bp)
     app.register_blueprint(reorderDays.bp)
+    app.register_blueprint(reorderQuantity.bp)
     
     return app
