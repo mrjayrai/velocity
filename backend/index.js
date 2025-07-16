@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const supplySchema = require('./models/SupplySchema');
 const DBConfig = require('./config/db');
 const inventroyRoutes = require('./routes/InventroyRoutes');
+const cors = require('cors');
 
 DBConfig();
 
@@ -16,7 +17,9 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 app.use('/api/inventory',inventroyRoutes);
+
 
 // Connect to MongoDB
 
