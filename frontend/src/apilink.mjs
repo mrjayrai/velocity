@@ -1,2 +1,2 @@
-const api = "http://localhost:5000/api";
+const api = "https://velocity-node.onrender.com/api";
 export default api;
