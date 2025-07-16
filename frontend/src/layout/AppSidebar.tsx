@@ -39,6 +39,11 @@ const navItems: NavItem[] = [
     name: "Inventory Forecast",
     path: "/order",
   },
+  {
+    icon: <TableIcon />,
+    name: "ReStock",
+    path: "/restock",
+  },
 ];
 
 const othersItems: NavItem[] = [
