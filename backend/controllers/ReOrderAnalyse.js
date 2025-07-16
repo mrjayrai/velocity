@@ -8,7 +8,7 @@ export const ReOrderAnalyse = async (req, res) => {
  
     // POST to Flask API
 const flaskresponse = await axios.post(
-'http://localhost:5001/api/inventory/reorder/analyze',
+'https://velocity-89e4.onrender.com/api/inventory/reorder/analyze',
       { data: result },
       { headers: { 'Content-Type': 'application/json' } }
     );

@@ -8,7 +8,7 @@ export const ReStockAnalyse = async (req, res) => {
 
     // POST to Flask API
     const flaskresponse = await axios.post(
-      'http://localhost:5001/api/quantity/analyze',
+      'https://velocity-89e4.onrender.com/api/quantity/analyze',
       { data: result },
       { headers: { 'Content-Type': 'application/json' } }
     );
