@@ -1,4 +1,4 @@
-import SignInForm from "@/components/auth/SignInForm";
+import InventoryForecast from "@/components/re-order/ReOrderAnalysis";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function SignIn() {
   return (
     <>
-    Hello
+    <InventoryForecast/>
     </>
   );
 }

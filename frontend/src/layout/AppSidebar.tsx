@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <TableIcon />,
-    name: "Add Stock",
+    name: "Inventory Forecast",
     path: "/order",
   },
 ];
