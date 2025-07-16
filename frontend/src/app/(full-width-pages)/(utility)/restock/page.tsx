@@ -1,4 +1,4 @@
-import InventoryForecast from "@/components/re-order/ReOrderAnalysis";
+import ReorderRecommendation from "@/components/re-stock/ReStock";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function InventoryForecastUI() {
   return (
     <>
-    <InventoryForecast/>
+    <ReorderRecommendation/>
     </>
   );
 }
